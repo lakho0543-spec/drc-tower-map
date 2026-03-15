@@ -36,9 +36,11 @@ function App() {
       .then(data => {
         setSites(data);
         
-        // Update dataTypes with antenna data
+        // Update dataTypes with antenna data - ensure other layers have empty arrays
         setDataTypes(prev => prev.map(type => 
-          type.id === 'antennas' ? { ...type, data: data } : type
+          type.id === 'antennas' 
+            ? { ...type, data: data } 
+            : { ...type, data: [] } // Ensure other layers have empty arrays
         ));
         
         const uniqueOps = ['all', ...new Set(data.map(site => site.operator).filter(op => op))];
@@ -54,11 +56,11 @@ function App() {
       });
   }, []);
 
-  // Get all visible sites from all layers
+  // Get all visible sites from all layers - SAFE VERSION
   const getAllVisibleSites = () => {
     let allSites = [];
     dataTypes.forEach(type => {
-      if (type.visible) {
+      if (type.visible && Array.isArray(type.data)) {
         allSites = [...allSites, ...type.data];
       }
     });
@@ -312,7 +314,7 @@ function App() {
           sites={filteredSites} 
           selectedSites={selectedSites}
           onSiteSelect={toggleSiteSelection}
-          activeLayers={activeLayers}
+          // Remove activeLayers if Map component doesn't use it
         />
       )}
 

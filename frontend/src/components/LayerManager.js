@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const LayerManager = ({ onLayerToggle }) => {
-  const [layers, setLayers] = useState([
-    { id: 'antennas', name: 'Antennes', visible: true, color: '#1E3A8A' },
-    { id: 'towers', name: 'Tours', visible: false, color: '#E63946' },
-    { id: 'offices', name: 'Bureaux', visible: false, color: '#32CD32' },
-    { id: 'future', name: 'Futurs sites', visible: false, color: '#FFA500' }
-  ]);
-
+const LayerManager = ({ layers = [], onLayerToggle }) => {
+  // Add default empty array and safety checks
+  
   const toggleLayer = (layerId) => {
+    if (!layers || !Array.isArray(layers)) return;
+    
     const updated = layers.map(l => 
       l.id === layerId ? { ...l, visible: !l.visible } : l
     );
-    setLayers(updated);
     onLayerToggle(updated);
   };
+
+  // Safety check
+  if (!layers || !Array.isArray(layers) || layers.length === 0) {
+    return (
+      <div className="layer-manager">
+        <h4>🗺️ Couches de données</h4>
+        <p className="loading-text">Chargement des couches...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="layer-manager">
@@ -23,11 +29,12 @@ const LayerManager = ({ onLayerToggle }) => {
         <label key={layer.id} className="layer-item">
           <input 
             type="checkbox" 
-            checked={layer.visible}
+            checked={layer.visible || false}
             onChange={() => toggleLayer(layer.id)}
           />
-          <span style={{ color: layer.color }}>●</span>
-          {layer.name}
+          <span style={{ color: layer.color || '#000', marginRight: '5px' }}>●</span>
+          {layer.name || 'Couche'}
+          <span className="layer-count">({layer.data?.length || 0})</span>
         </label>
       ))}
     </div>
